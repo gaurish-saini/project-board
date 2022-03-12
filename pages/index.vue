@@ -92,7 +92,6 @@ export default {
       snackbar: false,
       snackbarText: 'No error message',
       currentImageId: '',
-      fileToUpload: {},
     }
   },
   created() {},
@@ -124,7 +123,7 @@ export default {
 <style lang="scss">
 .v-dialog {
   border-radius: 15px;
-  // background-color: $white;
+  background-color: white;
   padding: 15px;
 }
 .upload-block {
