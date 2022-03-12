@@ -39,6 +39,24 @@ export default {
   modules: [
     // https://go.nuxtjs.dev/pwa
     '@nuxtjs/pwa',
+    [
+      '@nuxtjs/firebase',
+      {
+        config: {
+          apiKey: 'AIzaSyDsgcYl05XJMl8SG_RLnShbjZ7AsvEYFJw',
+          authDomain: 'project-board-8a036.firebaseapp.com',
+          projectId: 'project-board-8a036',
+          storageBucket: 'project-board-8a036.appspot.com',
+          messagingSenderId: '15466598933',
+          appId: '1:15466598933:web:0bac1f3acd40c20bc5741c',
+          measurementId: 'G-N2CDLXCYFF',
+        },
+        services: {
+          firestore: true,
+          storage: true // Just as example. Can be any other service.
+        },
+      },
+    ],
   ],
 
   // PWA module configuration: https://go.nuxtjs.dev/pwa
@@ -51,20 +69,6 @@ export default {
   // Vuetify module configuration: https://go.nuxtjs.dev/config-vuetify
   vuetify: {
     customVariables: ['~/assets/variables.scss'],
-    theme: {
-      dark: true,
-      themes: {
-        dark: {
-          primary: colors.blue.darken2,
-          accent: colors.grey.darken3,
-          secondary: colors.amber.darken3,
-          info: colors.teal.lighten1,
-          warning: colors.amber.base,
-          error: colors.deepOrange.accent4,
-          success: colors.green.accent3,
-        },
-      },
-    },
   },
 
   // Build Configuration: https://go.nuxtjs.dev/config-build

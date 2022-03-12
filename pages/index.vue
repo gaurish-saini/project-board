@@ -1,87 +1,136 @@
 <template>
-  <v-row justify="center" align="center">
-    <v-col cols="12" sm="8" md="6">
-      <v-card class="logo py-4 d-flex justify-center">
-        <NuxtLogo />
-        <VuetifyLogo />
-      </v-card>
-      <v-card>
-        <v-card-title class="headline">
-          Welcome to the Vuetify + Nuxt.js template
-        </v-card-title>
-        <v-card-text>
-          <p>
-            Vuetify is a progressive Material Design component framework for
-            Vue.js. It was designed to empower developers to create amazing
-            applications.
-          </p>
-          <p>
-            For more information on Vuetify, check out the
-            <a
-              href="https://vuetifyjs.com"
-              target="_blank"
-              rel="noopener noreferrer"
+  <v-container>
+    <v-dialog v-model="dialog" max-width="355" persistent>
+      <v-container class="d-block">
+        <v-row no-gutters align="center" justify="space-between">
+          <v-row no-gutters>
+            <h3>Add Board</h3>
+          </v-row>
+          <v-icon @click="dialog = false">mdi-close</v-icon>
+        </v-row>
+        <v-form ref="form" v-model="valid">
+          <div class="d-flex flex-column">
+            <v-text-field
+              label="Board title"
+              name="title"
+              type="text"
+              :rules="[(v) => !!v || 'Board title is required']"
+              required
+              v-model="board.title"
+            ></v-text-field>
+            <br />
+            <v-btn :disabled="!valid" color="primary" @click="createBoard"
+              >Submit</v-btn
             >
-              documentation </a
-            >.
-          </p>
-          <p>
-            If you have questions, please join the official
-            <a
-              href="https://chat.vuetifyjs.com/"
-              target="_blank"
-              rel="noopener noreferrer"
-              title="chat"
-            >
-              discord </a
-            >.
-          </p>
-          <p>
-            Find a bug? Report it on the github
-            <a
-              href="https://github.com/vuetifyjs/vuetify/issues"
-              target="_blank"
-              rel="noopener noreferrer"
-              title="contribute"
-            >
-              issue board </a
-            >.
-          </p>
-          <p>
-            Thank you for developing with Vuetify and I look forward to bringing
-            more exciting features in the future.
-          </p>
-          <div class="text-xs-right">
-            <em><small>&mdash; John Leider</small></em>
           </div>
-          <hr class="my-3" />
-          <a
-            href="https://nuxtjs.org/"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Nuxt Documentation
-          </a>
-          <br />
-          <a
-            href="https://github.com/nuxt/nuxt.js"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Nuxt GitHub
-          </a>
-        </v-card-text>
-        <v-card-actions>
-          <v-spacer />
-          <v-btn color="primary" nuxt to="/inspire"> Continue </v-btn>
-        </v-card-actions>
+        </v-form>
+      </v-container>
+    </v-dialog>
+    <div class="d-flex flex-row align-center justify-space-between">
+      <h1>My Boards</h1>
+      <v-btn small depressed @click="addBoard">ADD BOARD</v-btn>
+    </div>
+    <div class="d-flex flex-wrap align-center justify-start">
+      <p v-if="boards.length === 0">You have no boards yet.</p>
+      <v-card
+        @click="$router.push('/boards/' + board.id)"
+        class="jello-board-tile"
+        v-for="board in boards"
+        v-bind:key="board.id"
+      >
+        <v-card-title>
+          {{ board.title }}
+        </v-card-title>
+        <v-card-subtitle>
+          created {{ board.dateCreated | formatDate }}
+        </v-card-subtitle>
       </v-card>
-    </v-col>
-  </v-row>
+    </div>
+
+    <v-snackbar
+      :timeout="3000"
+      v-model="snackbar"
+      absolute
+      bottom
+      color="primary"
+    >
+      {{ snackbarText }}
+    </v-snackbar>
+  </v-container>
 </template>
 
 <script>
+import { v4 as uuidv4 } from 'uuid'
 export default {
-  name: 'IndexPage',
+  async asyncData() {
+    let boardsRef = $nuxt.$fire.firestore.collection('boards')
+    let boardData = []
+    await boardsRef
+      .get()
+      .then(function (querySnapshot) {
+        if (querySnapshot.docs.length > 0) {
+          try {
+            for (const doc of querySnapshot.docs) {
+              let data = doc.data()
+              data.id = doc.id
+              boardData.push(data)
+            }
+          } catch (err) {}
+        }
+      })
+      .catch(function (error) {})
+    return { boards: boardData }
+  },
+  data() {
+    return {
+      enableColor: false,
+      dialog: false,
+      valid: false,
+      board: {
+        title: '',
+      },
+      snackbar: false,
+      snackbarText: 'No error message',
+      currentImageId: '',
+      fileToUpload: {},
+    }
+  },
+  created() {},
+  methods: {
+    addBoard() {
+      this.currentImageId = uuidv4()
+      this.dialog = true
+    },
+    createBoard() {
+      let that = this
+      if (this.$refs.form.validate()) {
+        this.board.dateCreated = Date.now()
+        this.$fire.firestore
+          .collection('boards')
+          .doc(this.currentImageId)
+          .set(this.board)
+          .then(function (docRef) {
+            that.dialog = false
+            that.$refs.form.reset()
+            that.snackbarText = 'Successfully created your board'
+            that.snackbar = true
+          })
+          .catch(function (error) {})
+      }
+    },
+  },
 }
 </script>
+<style lang="scss">
+.v-dialog {
+  border-radius: 15px;
+  // background-color: $white;
+  padding: 15px;
+}
+.upload-block {
+  border: 2px dashed #adadad;
+  padding: 30px;
+  border-radius: 15px;
+  margin-bottom: 20px;
+}
+</style>
