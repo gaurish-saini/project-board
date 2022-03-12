@@ -261,102 +261,95 @@ export default {
     //     ev.preventDefault()
     //     this.updateCardList(listId)
     //   },
-      async deleteList(listId) {
-        let that = this
-        let index = -1
-        let count = 0
-        for (const list of that.board.lists) {
-          if (list.id == listId) {
-            index = count
+    async deleteList(listId) {
+      let that = this
+      let index = -1
+      let count = 0
+      for (const list of that.board.lists) {
+        if (list.id == listId) {
+          index = count
+        }
+        count++
+      }
+      if (index > -1) {
+        that.board.lists.splice(index, 1)
+        await that.updateBoard()
+      }
+    },
+    async createCard() {
+      let that = this
+      that.dialogCard = false
+      if (that.card.title != '') {
+        that.card.id = uuidv4()
+        that.card.dateCreated = Date.now()
+        that.card.listId = that.listId
+        if (that.board.lists) {
+          let index = -1
+          let count = 0
+          for (const list of that.board.lists) {
+            if (list.id === that.listId) {
+              index = count
+            }
+            count++
           }
-          count++
+          if (index != -1) {
+            if (that.board.lists[index].cards) {
+              that.board.lists[index].cards.push(that.card)
+            } else {
+              that.board.lists[index].cards = []
+              that.board.lists[index].cards.push(that.card)
+            }
+          }
         }
-        if (index > -1) {
-          that.board.lists.splice(index, 1)
-          await that.updateBoard()
+        await that.updateBoard()
+        that.card = {}
+        that.listId = ''
+      }
+    },
+    editCard(card) {
+      this.dialogEditCard = true
+      this.currentCard = card
+    },
+    async updateCard() {
+      let that = this
+      that.dialogEditCard = false
+      for (const list of that.board.lists) {
+        if (that.currentCard.listId === list.id) {
+          for (const card of list.cards) {
+            if (card.id === that.currentCard.id) {
+              card = that.currentCard
+            }
+          }
         }
-      },
-    //   async createCard() {
-    //     let that = this
-    //     that.dialogCard = false
-    //     //show modal to capture card name
-    //     //add card
-    //     if (that.card.title != '') {
-    //       //add to firebase
-    //       //Let's give our card a created date.
-    //       that.card.id = uuidv4()
-    //       that.card.dateCreated = Date.now()
-    //       that.card.listId = that.listId
-    //       if (that.board.lists) {
-    //         let index = -1
-    //         let count = 0
-    //         for (const list of that.board.lists) {
-    //           if (list.id === that.listId) {
-    //             index = count
-    //           }
-    //           count++
-    //         }
-    //         if (index != -1) {
-    //           //we found the list, now push our card
-    //           if (that.board.lists[index].cards) {
-    //             that.board.lists[index].cards.push(that.card)
-    //           } else {
-    //             that.board.lists[index].cards = []
-    //             that.board.lists[index].cards.push(that.card)
-    //           }
-    //         }
-    //       }
-    //       await that.updateBoard()
-    //       that.card = {}
-    //       that.listId = ''
-    //     }
-    //   },
-    //   editCard(card) {
-    //     this.dialogEditCard = true
-    //     this.currentCard = card
-    //   },
-    //   async updateCard() {
-    //     let that = this
-    //     that.dialogEditCard = false
-    //     for (const list of that.board.lists) {
-    //       if (that.currentCard.listId === list.id) {
-    //         //correct list, now find card
-    //         for (const card of list.cards) {
-    //           if (card.id === that.currentCard.id) {
-    //             card = that.currentCard
-    //           }
-    //         }
-    //       }
-    //     }
-    //     await that.updateBoard()
-    //   },
-    //   async deleteCard() {
-    //     let that = this
-    //     that.dialogEditCard = false
-    //     let i = 0
-    //     let j = 0
-    //     let index = {
-    //       list: -1,
-    //       card: -1,
-    //     }
-    //     for (const list of that.board.lists) {
-    //       if (that.currentCard.listId === list.id) {
-    //         //correct list, now find card
-    //         for (const card of list.cards) {
-    //           if (card.id === that.currentCard.id) {
-    //             index.list = i
-    //             index.card = j
-    //           }
-    //           j++
-    //         }
-    //       }
-    //       i++
-    //     }
-    //     if (index.list > -1) {
-    //       that.board.lists[index.list].cards.splice(index.card, 1)
-    //       await that.updateBoard()
-    //     }
-    //   },
+      }
+      await that.updateBoard()
+    },
+    async deleteCard() {
+      let that = this
+      that.dialogEditCard = false
+      let i = 0
+      let j = 0
+      let index = {
+        list: -1,
+        card: -1,
+      }
+      for (const list of that.board.lists) {
+        if (that.currentCard.listId === list.id) {
+          for (const card of list.cards) {
+            if (card.id === that.currentCard.id) {
+              index.list = i
+              index.card = j
+            }
+            j++
+          }
+        }
+        i++
+      }
+      if (index.list > -1) {
+        that.board.lists[index.list].cards.splice(index.card, 1)
+        await that.updateBoard()
+      }
+    },
     //   async deleteBoard() {
     //     let that = this
     //     try {
@@ -374,15 +367,15 @@ export default {
     //       $nuxt.$router.push('/')
     //     }
     //   },
-      async updateBoard() {
-        let that = this
-        await that.$fire.firestore
-          .collection('boards')
-          .doc(that.board.id)
-          .update(that.board, { merge: true })
-      },
+    async updateBoard() {
+      let that = this
+      await that.$fire.firestore
+        .collection('boards')
+        .doc(that.board.id)
+        .update(that.board, { merge: true })
     },
-  }
+  },
+}
 </script>
 
 <style lang="scss" scoped>
