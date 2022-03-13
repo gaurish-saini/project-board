@@ -1,5 +1,7 @@
 # project-board
 
+Check it out here: https://wonderful-perlman-687efd.netlify.app/
+
 ## Build Setup
 
 ```bash
