@@ -1,15 +1,11 @@
 <template>
-  <div class="d-flex flex-column board">
-    <div class="d-block">
-      <v-container fluid class="jello-topbar">
-        <div class="d-flex justify-space-between">
-          <v-icon small @click="deleteBoard()">mdi-delete-outline</v-icon>
-        </div>
-      </v-container>
+  <div class="d-flex flex-column board mt-6">
+    <div class="d-flex flex-row justify-space-between">
+      <h1>{{ board.title }}</h1>
+      <v-icon large @click="deleteBoard()">mdi-delete-outline</v-icon>
     </div>
-    <h1>{{ board.title }}</h1>
-    <small>created {{ board.dateCreated | formatDate }}</small>
-    <div class="d-flex flex-row pr-6 pt-3">
+    <small>Created On : {{ board.dateCreated | formatDate }}</small>
+    <div class="d-flex flex-row pr-6 pt-8">
       <div
         v-for="list in board.lists"
         @drop="drop($event, list.id)"
@@ -18,7 +14,14 @@
         v-bind:key="list.id"
       >
         <div class="d-flex flex-row justify-space-between">
-          <h4>{{ list.title }}</h4>
+          <div class="d-flex flex-row">
+            <h4 class="purple darken-1 rounded-lg text-center">
+              <span class="px-2 white--text">{{ list.title }} </span>
+            </h4>
+            <h4 class="text--secondary font-weight-bold ps-2">
+              {{ list.cards.length }}
+            </h4>
+          </div>
           <v-icon small @click="deleteList(list.id)">mdi-delete-outline</v-icon>
         </div>
 
@@ -28,22 +31,24 @@
           :draggable="true"
           @dragover.prevent
           @dragstart="drag($event, card)"
-          class="mt-5"
+          class="mt-2"
           @click="editCard(card)"
           v-bind:key="card.id"
         >
           <v-card-text> {{ card.title }} </v-card-text>
         </v-card>
-
-        <v-btn
-          depressed
-          @click="
-            dialogCard = true
-            listId = list.id
-          "
-          class="mt-auto"
-          >Add card</v-btn
-        >
+        <div class="d-flex flex-row align-baseline">
+          <v-icon
+            small
+            @click="
+              dialogCard = true
+              listId = list.id
+            "
+            class="mt-4"
+            >mdi-plus
+          </v-icon>
+          <h4 class="ps-1 text--secondary font-weight-bold">New</h4>
+        </div>
       </div>
       <v-dialog v-model="dialogCard" persistent max-width="600px">
         <v-card elevation="0">
@@ -76,7 +81,7 @@
       </v-dialog>
       <div class="d-flex flex-row">
         <v-btn depressed @click="dialog = true" class="create-list"
-          >Create new list</v-btn
+          >Create new Status</v-btn
         >
         <v-dialog v-model="dialog" persistent max-width="600px">
           <v-card elevation="0">
@@ -167,7 +172,6 @@ export default {
     }
   },
   async asyncData({ params }) {
-    //lets get our board data before page load, and then after that await changes
     let boardRef = $nuxt.$fire.firestore.collection('boards').doc(params.id)
     let boardData = {}
     await boardRef
@@ -179,9 +183,6 @@ export default {
         }
       })
       .catch(function (error) {})
-    // if (boardData.color != '' || boardData.image.downloadURL != '') {
-    //   $nuxt.$emit('toggle-alt-topbar')
-    // }
     return { board: boardData }
   },
   created() {
@@ -375,7 +376,6 @@ export default {
 .board {
   padding: 12px;
   height: 100vh;
-  overflow: scroll;
   .list {
     min-width: 250px;
     background-color: rgb(228 228 228 / 35%);
@@ -389,14 +389,8 @@ export default {
   a {
     text-decoration: none;
   }
-  .menu-items a {
-    // color: $text-color;
-    padding: 10px 0px 10px 3px;
-    font-size: 24px;
-  }
-  .jello-topbar {
-    background-color: rgb(255, 255, 255, 0);
-    padding: 0px !important;
+  .v-card__text {
+    padding: 8px !important;
   }
 }
 </style>

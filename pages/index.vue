@@ -26,15 +26,15 @@
         </v-form>
       </v-container>
     </v-dialog>
-    <div class="d-flex flex-row align-center justify-space-between">
+    <div class="d-flex flex-row align-center justify-space-between mt-6">
       <h1>My Boards</h1>
       <v-btn small depressed @click="addBoard">ADD BOARD</v-btn>
     </div>
-    <div class="d-flex flex-wrap align-center justify-start">
+    <div class="d-flex flex-wrap align-center justify-start pt-8">
       <p v-if="boards.length === 0">You have no boards yet.</p>
       <v-card
         @click="$router.push('/boards/' + board.id)"
-        class="jello-board-tile"
+        class="mx-4"
         v-for="board in boards"
         v-bind:key="board.id"
       >
@@ -125,11 +125,5 @@ export default {
   border-radius: 15px;
   background-color: white;
   padding: 15px;
-}
-.upload-block {
-  border: 2px dashed #adadad;
-  padding: 30px;
-  border-radius: 15px;
-  margin-bottom: 20px;
 }
 </style>
