@@ -215,52 +215,47 @@ export default {
         that.list = {}
       }
     },
-    //   async updateCardList(newlistId) {
-    //     let that = this
+    async updateCardList(newlistId) {
+      let that = this
 
-    //     let tempListIndex = -1
-    //     let tempCardIndex = -1
-    //     let newListIndex = -1
-    //     let tempListCount = 0
-    //     let tempCardCount = 0
+      let tempListIndex = -1
+      let tempCardIndex = -1
+      let newListIndex = -1
+      let tempListCount = 0
+      let tempCardCount = 0
 
-    //     //get the index in current cards current list
-    //     for (const list of that.board.lists) {
-    //       if (list.id === newlistId) {
-    //         newListIndex = tempListCount
-    //       }
-    //       if (that.currentCard.listId === list.id) {
-    //         //correct list, now find card
-    //         tempListIndex = tempListCount
-    //         for (const card of list.cards) {
-    //           if (card.id === that.currentCard.id) {
-    //             tempCardIndex = tempCardCount
-    //           }
-    //           tempCardCount++
-    //         }
-    //       }
-    //       tempListCount++
-    //     }
+      for (const list of that.board.lists) {
+        if (list.id === newlistId) {
+          newListIndex = tempListCount
+        }
+        if (that.currentCard.listId === list.id) {
+          tempListIndex = tempListCount
+          for (const card of list.cards) {
+            if (card.id === that.currentCard.id) {
+              tempCardIndex = tempCardCount
+            }
+            tempCardCount++
+          }
+        }
+        tempListCount++
+      }
 
-    //     //remove currentCard from current list
-    //     that.board.lists[tempListIndex].cards.splice(tempCardIndex, 1)
+      that.board.lists[tempListIndex].cards.splice(tempCardIndex, 1)
+      that.currentCard.listId = newlistId
+      that.board.lists[newListIndex].cards.push(that.currentCard)
 
-    //     //add currentCard to its new list
-    //     that.currentCard.listId = newlistId
-    //     that.board.lists[newListIndex].cards.push(that.currentCard)
-
-    //     await that.updateBoard()
-    //   },
-    //   allowDrop(ev) {
-    //     ev.preventDefault()
-    //   },
-    //   drag(ev, card) {
-    //     this.currentCard = card
-    //   },
-    //   drop(ev, listId) {
-    //     ev.preventDefault()
-    //     this.updateCardList(listId)
-    //   },
+      await that.updateBoard()
+    },
+    allowDrop(ev) {
+      ev.preventDefault()
+    },
+    drag(ev, card) {
+      this.currentCard = card
+    },
+    drop(ev, listId) {
+      ev.preventDefault()
+      this.updateCardList(listId)
+    },
     async deleteList(listId) {
       let that = this
       let index = -1
@@ -350,23 +345,21 @@ export default {
         await that.updateBoard()
       }
     },
-    //   async deleteBoard() {
-    //     let that = this
-    //     try {
-    //       await that.$fire.firestore
-    //         .collection('users')
-    //         .doc(that.$fire.auth.currentUser.uid)
-    //         .collection('boards')
-    //         .doc(that.board.id)
-    //         .delete()
-    //         .then(() => {
-    //           $nuxt.$router.push('/')
-    //         })
-    //         .catch(() => {})
-    //     } catch (error) {
-    //       $nuxt.$router.push('/')
-    //     }
-    //   },
+    async deleteBoard() {
+      let that = this
+      try {
+        await that.$fire.firestore
+          .collection('boards')
+          .doc(that.board.id)
+          .delete()
+          .then(() => {
+            $nuxt.$router.push('/')
+          })
+          .catch(() => {})
+      } catch (error) {
+        $nuxt.$router.push('/')
+      }
+    },
     async updateBoard() {
       let that = this
       await that.$fire.firestore
