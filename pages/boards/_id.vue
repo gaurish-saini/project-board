@@ -28,14 +28,17 @@
         <!--display cards-->
         <v-card
           v-for="card in list.cards"
-          :draggable="true"
-          @dragover.prevent
-          @dragstart="drag($event, card)"
           class="mt-2"
           @click="editCard(card)"
           v-bind:key="card.id"
         >
-          <v-card-text> {{ card.title }} </v-card-text>
+          <div
+            :draggable="true"
+            @dragover.prevent
+            @dragstart="drag($event, card)"
+          >
+            <v-card-text> {{ card.title }} </v-card-text>
+          </div>
         </v-card>
         <div class="d-flex flex-row align-baseline">
           <v-icon
@@ -168,7 +171,6 @@ export default {
       dialog: false,
       dialogCard: false,
       dialogEditCard: false,
-      drawer: false,
     }
   },
   async asyncData({ params }) {
