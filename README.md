@@ -1,4 +1,4 @@
-# trello-clone
+# EasyProBoard
 
 ## Build Setup
 
